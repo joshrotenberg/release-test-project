@@ -1,0 +1,43 @@
+use release_test_core::DataModel;
+
+pub fn format_data(model: &DataModel) -> String {
+    format!("Data #{}: {} = {}", model.id, model.name, model.value)
+}
+
+pub fn serialize_data(model: &DataModel) -> Result<String, serde_json::Error> {
+    serde_json::to_string_pretty(model)
+}
+
+pub fn calculate_average(values: &[f64]) -> f64 {
+    if values.is_empty() {
+        return 0.0;
+    }
+    values.iter().sum::<f64>() / values.len() as f64
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use release_test_core::DataModel;
+
+    #[test]
+    fn test_format_data() {
+        let model = DataModel::new(1, "test".to_string(), 42.0).unwrap();
+        let formatted = format_data(&model);
+        assert_eq!(formatted, "Data #1: test = 42");
+    }
+
+    #[test]
+    fn test_serialize_data() {
+        let model = DataModel::new(1, "test".to_string(), 42.0).unwrap();
+        let json = serialize_data(&model).unwrap();
+        assert!(json.contains("\"id\": 1"));
+        assert!(json.contains("\"name\": \"test\""));
+    }
+
+    #[test]
+    fn test_calculate_average() {
+        assert_eq!(calculate_average(&[1.0, 2.0, 3.0]), 2.0);
+        assert_eq!(calculate_average(&[]), 0.0);
+    }
+}

@@ -1,0 +1,20 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/core",
+    "crates/utils",
+    "crates/cli",
+]
+
+[workspace.package]
+edition = "2024"
+authors = ["Test Author <test@example.com>"]
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/example/release-test-project"
+
+[workspace.dependencies]
+anyhow = "1.0"
+thiserror = "2.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+clap = { version = "4.5", features = ["derive"] }

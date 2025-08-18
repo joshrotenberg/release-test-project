@@ -1,0 +1,49 @@
+[workspace]
+# Enable changelog generation for all packages
+changelog_update = true
+# Disable git tag creation (can be enabled later)
+git_tag_enable = false
+# Disable GitHub/GitLab release creation
+git_release_enable = false
+# Allow dirty working directory for testing
+allow_dirty = true
+# Dependencies update strategy
+dependencies_update = true
+# Publish to crates.io (disabled for testing)
+publish = false
+
+# Changelog configuration
+[[changelog]]
+# Protect breaking changes section
+protect_breaking_commits = true
+# Commit types to include in changelog
+commit_types = [
+    { type = "feat", section = "Features" },
+    { type = "fix", section = "Bug Fixes" },
+    { type = "perf", section = "Performance" },
+    { type = "docs", section = "Documentation" },
+    { type = "refactor", section = "Refactoring" },
+    { type = "test", section = "Tests" },
+    { type = "chore", section = "Miscellaneous" },
+    { type = "style", section = "Style" },
+]
+
+# Package-specific configurations
+[[package]]
+name = "release-test-core"
+# Changelog path relative to crate directory
+changelog_path = "CHANGELOG.md"
+# Include dependencies updates in changelog
+changelog_include_dependencies = true
+
+[[package]]
+name = "release-test-utils"
+changelog_path = "CHANGELOG.md"
+changelog_include_dependencies = true
+
+[[package]]
+name = "release-test-cli"
+changelog_path = "CHANGELOG.md"
+changelog_include_dependencies = true
+# CLI package might want different versioning strategy
+semver_check = true

@@ -32,6 +32,10 @@ impl DataModel {
     pub fn squared(&self) -> f64 {
         self.value * self.value
     }
+    
+    pub fn to_json(&self) -> Result<String, serde_json::Error> {
+        serde_json::to_string(self)
+    }
 }
 
 #[cfg(test)]
@@ -56,5 +60,13 @@ mod tests {
     fn test_process() {
         let model = DataModel::new(1, "test".to_string(), 21.0).unwrap();
         assert_eq!(model.process(), 42.0);
+    }
+
+    #[test]
+    fn test_to_json() {
+        let model = DataModel::new(1, "test".to_string(), 42.0).unwrap();
+        let json = model.to_json().unwrap();
+        assert!(json.contains("\"id\":1"));
+        assert!(json.contains("\"name\":\"test\""));
     }
 }

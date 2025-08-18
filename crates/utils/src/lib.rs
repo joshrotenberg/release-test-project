@@ -15,17 +15,18 @@ pub fn calculate_average(values: &[f64]) -> f64 {
     values.iter().sum::<f64>() / values.len() as f64
 }
 
-pub fn calculate_median(values: &mut [f64]) -> f64 {
+pub fn calculate_median(values: &mut [f64]) -> Option<f64> {
     if values.is_empty() {
-        return 0.0;
+        return None;
     }
     values.sort_by(|a, b| a.partial_cmp(b).unwrap());
     let mid = values.len() / 2;
-    if values.len() % 2 == 0 {
+    let median = if values.len() % 2 == 0 {
         (values[mid - 1] + values[mid]) / 2.0
     } else {
         values[mid]
-    }
+    };
+    Some(median)
 }
 
 #[cfg(test)]
@@ -52,5 +53,17 @@ mod tests {
     fn test_calculate_average() {
         assert_eq!(calculate_average(&[1.0, 2.0, 3.0]), 2.0);
         assert_eq!(calculate_average(&[]), 0.0);
+    }
+
+    #[test]
+    fn test_calculate_median() {
+        let mut values = vec![1.0, 2.0, 3.0];
+        assert_eq!(calculate_median(&mut values), Some(2.0));
+        
+        let mut values = vec![1.0, 2.0, 3.0, 4.0];
+        assert_eq!(calculate_median(&mut values), Some(2.5));
+        
+        let mut empty: Vec<f64> = vec![];
+        assert_eq!(calculate_median(&mut empty), None);
     }
 }

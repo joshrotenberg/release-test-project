@@ -10,3 +10,4 @@ description = "Core functionality for release-test project"
 [dependencies]
 thiserror.workspace = true
 serde = { workspace = true, features = ["derive"] }
+serde_json.workspace = true

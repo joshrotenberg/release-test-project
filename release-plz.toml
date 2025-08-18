@@ -1,8 +1,10 @@
 [workspace]
 # Enable changelog generation for all packages
 changelog_update = true
-# Disable git tag creation (can be enabled later)
-git_tag_enable = false
+# Enable git tag creation
+git_tag_enable = true
+# Tag name format
+git_tag_name = "{{package}}-v{{version}}"
 # Disable GitHub/GitLab release creation
 git_release_enable = false
 # Allow dirty working directory for testing
@@ -11,6 +13,9 @@ allow_dirty = true
 dependencies_update = true
 # Publish to crates.io (disabled for testing)
 publish = false
+# PR settings
+pr_name = "chore: release {{package}} v{{version}}"
+pr_draft = false
 
 # Package-specific configurations
 [[package]]

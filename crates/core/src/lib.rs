@@ -28,6 +28,10 @@ impl DataModel {
     pub fn process(&self) -> f64 {
         self.value * 2.0
     }
+    
+    pub fn squared(&self) -> f64 {
+        self.value * self.value
+    }
 }
 
 #[cfg(test)]

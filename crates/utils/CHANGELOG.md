@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.4.0](https://github.com/joshrotenberg/release-test-project/compare/release-test-utils-v0.3.0...release-test-utils-v0.4.0) (2025-08-19)
+
+
+### Features
+
+* **utils:** add min/max utility functions ([3864a54](https://github.com/joshrotenberg/release-test-project/commit/3864a5403bd0b618e0b3b4a7e415baffa90d0306))
+* **utils:** add min/max utility functions ([3420e16](https://github.com/joshrotenberg/release-test-project/commit/3420e168fdfbacf0d92659eca342ab025424d163))
+
 ## [0.3.0](https://github.com/joshrotenberg/release-test-project/compare/release-test-utils-v0.2.0...release-test-utils-v0.3.0) (2025-08-19)
 
 

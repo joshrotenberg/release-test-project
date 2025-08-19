@@ -118,6 +118,37 @@ ERROR: invalid config file release-plz.toml - unknown field
 **Cause**: Commit message format incorrect
 **Solution**: Use `feat!:` or include `BREAKING CHANGE:` in commit body
 
+### 8. ❌ GitHub Actions Billing/Limits
+**Issue**: "The job was not started because recent account payments have failed or your spending limit needs to be increased"
+**Cause**: GitHub Actions requires billing setup for private repos or when limits exceeded
+**Solutions**:
+- Enable GitHub Actions in repository settings
+- Add payment method to GitHub account
+- Use free tier (public repos)
+- Run release-plz locally instead
+
+### 9. ❌ Release-plz Requires Published Packages (CRITICAL)
+**Issue**: Even in CI, release-plz fails with unpublished packages
+```
+ERROR: package `release-test-core` not found in the registry, but the git tag release-test-core-v0.1.0 exists
+```
+**Cause**: release-plz is designed for packages published to crates.io
+**This is a fundamental limitation - release-plz cannot work with unpublished packages**
+**Solutions**:
+- Publish packages to crates.io (not always possible/desired)
+- Use alternative tools like `cargo-release` for local packages
+- Create custom release scripts (see MANUAL_RELEASE.md)
+- Switch to release-please (works without publishing!)
+
+### 10. ❌ GitHub Actions Cannot Create PRs (release-please)
+**Issue**: "GitHub Actions is not permitted to create or approve pull requests"
+**Cause**: Default GITHUB_TOKEN has limited permissions
+**Solutions**:
+1. Go to Settings → Actions → General
+2. Under "Workflow permissions" select "Read and write permissions"
+3. Check "Allow GitHub Actions to create and approve pull requests"
+4. Or create a Personal Access Token (PAT) with PR permissions
+
 ## Working Configuration Summary
 
 ✅ **What Works**:

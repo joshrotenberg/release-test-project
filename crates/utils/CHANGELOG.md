@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.4.1](https://github.com/joshrotenberg/release-test-project/compare/release-test-utils-v0.4.0...release-test-utils-v0.4.1) (2025-08-19)
+
+
+### 🐛 Bug Fixes
+
+* **utils:** handle NaN and infinite values in statistics ([5cb9ad6](https://github.com/joshrotenberg/release-test-project/commit/5cb9ad68048b46442524efc2bdecc4286407917f))
+* **utils:** handle NaN and infinite values in statistics functions ([df73365](https://github.com/joshrotenberg/release-test-project/commit/df7336531a8be335b27b7c0348f3ba55e838a14e))
+
 ## [0.4.0](https://github.com/joshrotenberg/release-test-project/compare/release-test-utils-v0.3.0...release-test-utils-v0.4.0) (2025-08-19)
 
 

@@ -8,5 +8,5 @@ repository.workspace = true
 description = "Utility functions for release-test project"
 
 [dependencies]
-release-test-core = { path = "../core", version = "0.1.0" }
+release-test-core = { path = "../core", version = "0.2.0" }
 serde_json.workspace = true

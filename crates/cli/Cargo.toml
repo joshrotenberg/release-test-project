@@ -12,7 +12,7 @@ name = "release-test"
 path = "src/main.rs"
 
 [dependencies]
-release-test-core = { path = "../core", version = "0.1.0" }
-release-test-utils = { path = "../utils", version = "0.1.0" }
+release-test-core = { path = "../core", version = "0.2.0" }
+release-test-utils = { path = "../utils", version = "0.2.0" }
 anyhow.workspace = true
 clap.workspace = true

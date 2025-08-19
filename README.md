@@ -1,177 +1,116 @@
 # release-test-project
 
-A test project demonstrating automated releases for Rust multi-workspace projects.
+A complete working example of automated releases for Rust multi-workspace projects using release-please.
 
-> **✅ Working Solution**: This repo uses `release-please` for automated releases.  
-> **❌ Failed Attempt**: `release-plz` requires packages to be published to crates.io.  
-> **📖 Setup Guide**: See [RELEASE_PLEASE_SETUP.md](RELEASE_PLEASE_SETUP.md) for step-by-step instructions.
+> **✅ Working Solution**: `release-please` works perfectly with unpublished packages  
+> **❌ Failed Attempt**: `release-plz` requires crates.io publication  
+> **📖 Complete Guide**: [RELEASE_PLEASE_SETUP.md](RELEASE_PLEASE_SETUP.md) has step-by-step instructions
 
-## Purpose
+## Quick Start for Claude
 
-This repository serves as a working example of automated releases in a Rust workspace with multiple interdependent crates.
+To replicate this setup in another Rust workspace:
 
-**🎉 SOLUTION FOUND: Use `release-please` instead of `release-plz`!**
+1. Copy these files to your project:
+   - `release-please-config.json` - Multi-package configuration
+   - `.release-please-manifest.json` - Version tracking
+   - `.github/workflows/release-please.yml` - GitHub Action
+   - `cliff.toml` - Enhanced changelog formatting (optional)
 
-See [RELEASE_PLEASE_SETUP.md](RELEASE_PLEASE_SETUP.md) for complete setup instructions that work with unpublished packages.
+2. Update package paths in `release-please-config.json`
 
-## Structure
+3. Enable GitHub Actions permissions:
+   - Settings → Actions → General
+   - ✅ "Allow GitHub Actions to create and approve pull requests"
 
+4. Start using conventional commits (`feat:`, `fix:`, etc.)
+
+## Current Setup
+
+### Structure
 ```
 ├── crates/
-│   ├── core/        # Core library with data models
-│   ├── utils/       # Utilities (depends on core)
-│   └── cli/         # CLI application (depends on core and utils)
-├── release-plz.toml # Release automation config
-└── cliff.toml       # Changelog generation config
+│   ├── core/        # Core library (v0.2.0)
+│   ├── utils/       # Utilities (v0.4.1) - depends on core
+│   └── cli/         # CLI app (v0.3.1) - depends on both
+├── .github/
+│   └── workflows/
+│       └── release-please.yml    # Automation workflow
+├── release-please-config.json    # Release configuration
+├── .release-please-manifest.json # Version tracking
+└── cliff.toml                     # Changelog formatting
 ```
 
-## Key Features
+### Key Files
 
-- Multi-workspace Rust project setup
-- Automated version bumping with conventional commits
-- Changelog generation per crate
-- GitHub Actions workflows for CI/CD
-- Internal dependency version management
+#### `release-please-config.json`
+Configures how releases work - package paths, changelog sections, versioning strategy.
 
-## Testing Release-plz
+#### `.release-please-manifest.json`
+Tracks current version of each package.
 
-### Basic Commands
-```bash
-# Check what would be released
-release-plz update
+#### `.github/workflows/release-please.yml`
+GitHub Action that runs on push to main, creates release PRs automatically.
 
-# Create a release PR (requires GitHub token)
-release-plz release-pr --git-token $GITHUB_TOKEN
+#### `cliff.toml` (Optional)
+Enhanced changelog formatting with emojis and better organization.
 
-# Local testing with verbose output
-release-plz update --verbose
-```
+## How It Works
 
-### Debugging Commands
-```bash
-# See detailed logs of what release-plz is doing
-release-plz update --verbose
+1. **Make changes** in a feature branch
+2. **Use conventional commits**:
+   - `feat:` → Minor version bump (0.1.0 → 0.2.0)
+   - `fix:` → Patch version bump (0.1.0 → 0.1.1)
+   - `feat!:` or `BREAKING CHANGE:` → Major version bump (0.1.0 → 1.0.0)
+3. **Merge to main** → release-please creates a PR
+4. **Merge release PR** → Creates GitHub releases and tags
 
-# Check current package versions
-grep "^version" crates/*/Cargo.toml
+## Version Bumping Examples
 
-# List all tags
-git tag -l
+| Commit | Effect on Version | Example |
+|--------|------------------|---------|
+| `fix: handle NaN values` | Patch: 0.4.0 → 0.4.1 | Bug fixes |
+| `feat: add new function` | Minor: 0.4.0 → 0.5.0 | New features |
+| `feat!: change API` | Major: 0.4.0 → 1.0.0 | Breaking changes |
 
-# Check if commits follow conventional format
-git log --oneline --since="last tag"
+## Recent Releases
 
-# Manually create initial tags (for first release)
-git tag release-test-core-v0.1.0
-git tag release-test-utils-v0.1.0
-git tag release-test-cli-v0.1.0
-git push origin --tags
-```
+- **v0.4.1** - Bug fix: Handle NaN values in statistics
+- **v0.4.0** - Feature: Add min/max functions
+- **v0.3.0** - Feature: Add variance calculation
+- **v0.2.0** - Feature: Add standard deviation
 
-## Workflows
+## Troubleshooting
 
-- **Push to main**: Triggers release-plz to create a PR with version bumps
-- **Merge release PR**: Creates git tags and GitHub releases
-- **Conventional commits**: Automatically determine version bumps (feat = minor, fix = patch, breaking = major)
+### Release PR not created?
+- Check GitHub Actions permissions are enabled
+- Ensure commits follow conventional format
+- Verify workflow is running: `gh run list --workflow=release-please.yml`
 
-## Issues Encountered & Solutions
+### Wrong version bump?
+- Check commit message format
+- Breaking changes need `!` or `BREAKING CHANGE:` in message
 
-### 1. ❌ "Package not found in registry" Error
-**Issue**: When running `release-plz update` with unpublished packages:
-```
-ERROR: package `release-test-core` not found in the registry, but the git tag release-test-core-v0.1.0 exists
-```
-**Cause**: release-plz expects packages to be published to crates.io
-**Solutions**:
-- Use GitHub Actions which handle this better in CI
-- For local testing, create initial tags manually
-- Consider `cargo-release` for purely local projects
+### Workflow failing?
+- Ensure repository Settings allow Actions to create PRs
+- Check `gh run view <run-id> --log-failed` for errors
 
-### 2. ❌ Invalid Config Fields
-**Issue**: Config parsing errors with fields like `registry` or `changelog_include_dependencies`
-```
-ERROR: invalid config file release-plz.toml - unknown field
-```
-**Cause**: These fields don't exist or are at wrong level
-**Solution**: Keep config minimal, check docs for valid fields
+## Documentation
 
-### 3. ⚠️ No Version Bumps Detected
-**Issue**: Running `release-plz update` shows "repository is already up-to-date"
-**Causes**:
-- No conventional commits since last tag
-- No initial tags to compare against
-- Changes not significant enough for version bump
-**Solution**: Ensure commits follow conventional format (feat:, fix:, etc.)
+- **[RELEASE_PLEASE_SETUP.md](RELEASE_PLEASE_SETUP.md)** - Complete setup guide
+- **[MANUAL_RELEASE.md](MANUAL_RELEASE.md)** - Manual release process (fallback)
 
-### 4. ⚠️ No Upstream Configured Warning
-**Issue**: `WARN: no upstream configured for branch master`
-**Cause**: Local branch not tracking remote
-**Solution**: Use `git push -u origin main` when pushing
+## Key Insights
 
-### 5. ❌ Git Token Required for Release
-**Issue**: `ERROR: git release not configured. Did you specify git-token and forge?`
-**Cause**: release-plz needs GitHub token for creating releases
-**Solution**: 
-- Set `GITHUB_TOKEN` in CI/CD
-- For local testing, use `--git-token` flag
-- Disable git releases with `git_release_enable = false`
+1. **release-please works without publishing** - Unlike release-plz
+2. **Conventional commits are essential** - They drive version bumping
+3. **Dependencies cascade** - Updating core bumps dependent packages
+4. **GitHub Actions need permissions** - Must allow PR creation
 
-### 6. ⚠️ Workspace Dependencies Not Updating
-**Issue**: Internal crate versions not bumping together
-**Cause**: Missing `dependencies_update = true` in config
-**Solution**: Enable in `[workspace]` section of release-plz.toml
+## Issues Documented
 
-### 7. ❌ Breaking Changes Not Detected
-**Issue**: Major version not bumping on breaking changes
-**Cause**: Commit message format incorrect
-**Solution**: Use `feat!:` or include `BREAKING CHANGE:` in commit body
+See the [Issues section](#issues-encountered--solutions) for problems we encountered and solved, including:
+- release-plz failures with unpublished packages
+- GitHub Actions permission issues
+- Version bumping configuration
 
-### 8. ❌ GitHub Actions Billing/Limits
-**Issue**: "The job was not started because recent account payments have failed or your spending limit needs to be increased"
-**Cause**: GitHub Actions requires billing setup for private repos or when limits exceeded
-**Solutions**:
-- Enable GitHub Actions in repository settings
-- Add payment method to GitHub account
-- Use free tier (public repos)
-- Run release-plz locally instead
-
-### 9. ❌ Release-plz Requires Published Packages (CRITICAL)
-**Issue**: Even in CI, release-plz fails with unpublished packages
-```
-ERROR: package `release-test-core` not found in the registry, but the git tag release-test-core-v0.1.0 exists
-```
-**Cause**: release-plz is designed for packages published to crates.io
-**This is a fundamental limitation - release-plz cannot work with unpublished packages**
-**Solutions**:
-- Publish packages to crates.io (not always possible/desired)
-- Use alternative tools like `cargo-release` for local packages
-- Create custom release scripts (see MANUAL_RELEASE.md)
-- Switch to release-please (works without publishing!)
-
-### 10. ❌ GitHub Actions Cannot Create PRs (release-please)
-**Issue**: "GitHub Actions is not permitted to create or approve pull requests"
-**Cause**: Default GITHUB_TOKEN has limited permissions
-**Solutions**:
-1. Go to Settings → Actions → General
-2. Under "Workflow permissions" select "Read and write permissions"
-3. Check "Allow GitHub Actions to create and approve pull requests"
-4. Or create a Personal Access Token (PAT) with PR permissions
-
-## Working Configuration Summary
-
-✅ **What Works**:
-- Multi-workspace version management (with caveats)
-- Internal dependency updates
-- Changelog generation per crate
-- GitHub Actions integration
-- Conventional commit parsing
-
-❌ **What Doesn't Work (Locally)**:
-- Unpublished packages without workarounds
-- Local releases without GitHub token
-- Registry-less operation
-
-## Resources
-
-- [release-plz documentation](https://release-plz.ieni.dev/)
-- [Conventional Commits](https://www.conventionalcommits.org/)
+This is a fully working example - clone it, study the configuration, and adapt for your project!

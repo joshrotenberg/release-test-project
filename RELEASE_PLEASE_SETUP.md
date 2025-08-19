@@ -225,6 +225,7 @@ gh pr merge --merge
 .
 ├── release-please-config.json    # Configuration
 ├── .release-please-manifest.json # Version tracking
+├── cliff.toml                    # Enhanced changelog formatting (optional)
 ├── .github/
 │   └── workflows/
 │       └── release-please.yml    # GitHub Action
@@ -236,6 +237,14 @@ gh pr merge --merge
     └── cli/
         └── CHANGELOG.md          # Auto-generated
 ```
+
+## Optional: Enhanced Changelogs with git-cliff
+
+For better formatted changelogs with emojis and sections, add a `cliff.toml` file. This works alongside release-please to provide richer changelog formatting. See this repo's cliff.toml for a working example with:
+- Emoji section headers (🚀 Features, 🐛 Bug Fixes, etc.)
+- Commit links to GitHub
+- Issue/PR linking
+- Contributor attribution
 
 ## Troubleshooting
 

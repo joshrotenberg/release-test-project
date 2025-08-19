@@ -46,6 +46,14 @@ pub fn calculate_std_deviation(values: &[f64]) -> Option<f64> {
     calculate_variance(values).map(|v| v.sqrt())
 }
 
+pub fn find_min(values: &[f64]) -> Option<f64> {
+    values.iter().copied().min_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal))
+}
+
+pub fn find_max(values: &[f64]) -> Option<f64> {
+    values.iter().copied().max_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -122,5 +130,21 @@ mod tests {
         // Test with identical values
         let values = vec![3.0, 3.0, 3.0, 3.0];
         assert_eq!(calculate_std_deviation(&values), Some(0.0));
+    }
+
+    #[test]
+    fn test_find_min() {
+        assert_eq!(find_min(&[3.0, 1.0, 4.0, 2.0]), Some(1.0));
+        assert_eq!(find_min(&[42.0]), Some(42.0));
+        assert_eq!(find_min(&[]), None);
+        assert_eq!(find_min(&[-5.0, 0.0, 5.0]), Some(-5.0));
+    }
+
+    #[test]
+    fn test_find_max() {
+        assert_eq!(find_max(&[3.0, 1.0, 4.0, 2.0]), Some(4.0));
+        assert_eq!(find_max(&[42.0]), Some(42.0));
+        assert_eq!(find_max(&[]), None);
+        assert_eq!(find_max(&[-5.0, 0.0, 5.0]), Some(5.0));
     }
 }

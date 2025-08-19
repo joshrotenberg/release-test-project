@@ -29,6 +29,19 @@ pub fn calculate_median(values: &mut [f64]) -> Option<f64> {
     Some(median)
 }
 
+pub fn calculate_std_deviation(values: &[f64]) -> Option<f64> {
+    if values.is_empty() {
+        return None;
+    }
+    
+    let mean = calculate_average(values);
+    let variance = values.iter()
+        .map(|x| (x - mean).powi(2))
+        .sum::<f64>() / values.len() as f64;
+    
+    Some(variance.sqrt())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -65,5 +78,25 @@ mod tests {
         
         let mut empty: Vec<f64> = vec![];
         assert_eq!(calculate_median(&mut empty), None);
+    }
+
+    #[test]
+    fn test_calculate_std_deviation() {
+        // Test with simple values
+        let values = vec![2.0, 4.0, 4.0, 4.0, 5.0, 5.0, 7.0, 9.0];
+        let std_dev = calculate_std_deviation(&values).unwrap();
+        assert!((std_dev - 2.0).abs() < 0.01);
+        
+        // Test with single value
+        let values = vec![5.0];
+        assert_eq!(calculate_std_deviation(&values), Some(0.0));
+        
+        // Test with empty array
+        let empty: Vec<f64> = vec![];
+        assert_eq!(calculate_std_deviation(&empty), None);
+        
+        // Test with identical values
+        let values = vec![3.0, 3.0, 3.0, 3.0];
+        assert_eq!(calculate_std_deviation(&values), Some(0.0));
     }
 }

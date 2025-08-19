@@ -1,10 +1,18 @@
 # release-test-project
 
-A test project to demonstrate and debug `release-plz` configuration for Rust multi-workspace projects.
+A test project demonstrating automated releases for Rust multi-workspace projects.
+
+> **✅ Working Solution**: This repo uses `release-please` for automated releases.  
+> **❌ Failed Attempt**: `release-plz` requires packages to be published to crates.io.  
+> **📖 Setup Guide**: See [RELEASE_PLEASE_SETUP.md](RELEASE_PLEASE_SETUP.md) for step-by-step instructions.
 
 ## Purpose
 
-This repository serves as a working example of how to properly configure `release-plz` for automated releases in a Rust workspace with multiple interdependent crates.
+This repository serves as a working example of automated releases in a Rust workspace with multiple interdependent crates.
+
+**🎉 SOLUTION FOUND: Use `release-please` instead of `release-plz`!**
+
+See [RELEASE_PLEASE_SETUP.md](RELEASE_PLEASE_SETUP.md) for complete setup instructions that work with unpublished packages.
 
 ## Structure
 

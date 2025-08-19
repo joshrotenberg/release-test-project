@@ -1,4 +1,4 @@
-# git-cliff configuration for release-plz
+# git-cliff configuration for enhanced changelogs
 [changelog]
 # Header template for the changelog
 header = """
@@ -18,12 +18,36 @@ body = """
 ## [Unreleased]
 {% endif -%}
 
+{% if previous %}{% if previous.commit_id %}
+[Compare changes](https://github.com/joshrotenberg/release-test-project/compare/{{ previous.commit_id }}...{{ commit_id }})
+{% endif %}{% endif %}
+
 {% for group, commits in commits | group_by(attribute="group") %}
-### {{ group | upper_first }}
+### {{ group | striptags | trim | upper_first }}
+{% for commit in commits
+| filter(attribute="scope")
+| sort(attribute="scope") %}
+- **{{ commit.scope }}**: {{ commit.message | upper_first }} ([{{ commit.id | truncate(length=7, end="") }}](https://github.com/joshrotenberg/release-test-project/commit/{{ commit.id }}))
+{%- if commit.breaking %}
+  - **BREAKING**: {{ commit.breaking_description }}
+{%- endif %}
+{%- endfor %}
 {% for commit in commits %}
-- {{ commit.message | upper_first }}{% if commit.breaking %} [**BREAKING**]{% endif %}
+{%- if not commit.scope %}
+- {{ commit.message | upper_first }} ([{{ commit.id | truncate(length=7, end="") }}](https://github.com/joshrotenberg/release-test-project/commit/{{ commit.id }}))
+{%- if commit.breaking %}
+  - **BREAKING**: {{ commit.breaking_description }}
+{%- endif %}
+{%- endif %}
 {%- endfor %}
 {% endfor %}
+
+{% if github.contributors | length > 0 %}
+### Contributors
+{% for contributor in github.contributors | unique %}
+- @{{ contributor }}
+{%- endfor %}
+{% endif %}
 """
 # Footer template
 footer = ""
@@ -39,20 +63,28 @@ filter_unconventional = false
 split_commits = false
 # Regex for commit preprocessors
 commit_preprocessors = [
-    { pattern = '\((\w+\s)?#([0-9]+)\)', replace = "([#${2}](https://github.com/example/release-test-project/issues/${2}))" },
+    # Replace issue numbers with links
+    { pattern = '\((\w+\s)?#([0-9]+)\)', replace = "([#${2}](https://github.com/joshrotenberg/release-test-project/issues/${2}))" },
+    # Extract and format breaking changes
+    { pattern = '(BREAKING CHANGE|BREAKING):?\s*(.*)', replace = "BREAKING: ${2}" },
 ]
 # Commit parsers for grouping
 commit_parsers = [
-    { message = "^feat", group = "Features" },
-    { message = "^fix", group = "Bug Fixes" },
-    { message = "^doc", group = "Documentation" },
-    { message = "^perf", group = "Performance" },
-    { message = "^refactor", group = "Refactor" },
-    { message = "^style", group = "Styling" },
-    { message = "^test", group = "Testing" },
+    { message = "^feat", group = "🚀 Features" },
+    { message = "^fix", group = "🐛 Bug Fixes" },
+    { message = "^doc", group = "📚 Documentation" },
+    { message = "^perf", group = "⚡ Performance" },
+    { message = "^refactor", group = "♻️ Refactoring" },
+    { message = "^style", group = "💄 Styling" },
+    { message = "^test", group = "✅ Testing" },
     { message = "^chore\\(release\\): prepare for", skip = true },
-    { message = "^chore", group = "Miscellaneous Tasks" },
-    { body = ".*security", group = "Security" },
+    { message = "^chore\\(release\\):", skip = true },
+    { message = "^chore\\(deps\\)", group = "📦 Dependencies" },
+    { message = "^chore", group = "🔧 Miscellaneous" },
+    { message = "^ci", group = "👷 CI/CD" },
+    { body = ".*security", group = "🔒 Security" },
+    { message = "^revert", group = "⏪ Reverts" },
+    { message = "^build", group = "🏗️ Build System" },
 ]
 # Protect breaking changes
 protect_breaking_commits = false
@@ -60,3 +92,8 @@ protect_breaking_commits = false
 filter_commits = false
 # Sort commits chronologically
 sort_commits = "oldest"
+# Link parsers for issues and PRs
+link_parsers = [
+    { pattern = "#(\\d+)", href = "https://github.com/joshrotenberg/release-test-project/issues/$1" },
+    { pattern = "RFC(\\d+)", text = "RFC-$1" },
+]

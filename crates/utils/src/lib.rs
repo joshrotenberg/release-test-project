@@ -9,10 +9,15 @@ pub fn serialize_data(model: &DataModel) -> Result<String, serde_json::Error> {
 }
 
 pub fn calculate_average(values: &[f64]) -> f64 {
-    if values.is_empty() {
+    let valid_values: Vec<f64> = values.iter()
+        .copied()
+        .filter(|x| x.is_finite())
+        .collect();
+    
+    if valid_values.is_empty() {
         return 0.0;
     }
-    values.iter().sum::<f64>() / values.len() as f64
+    valid_values.iter().sum::<f64>() / valid_values.len() as f64
 }
 
 pub fn calculate_median(values: &mut [f64]) -> Option<f64> {
@@ -30,14 +35,19 @@ pub fn calculate_median(values: &mut [f64]) -> Option<f64> {
 }
 
 pub fn calculate_variance(values: &[f64]) -> Option<f64> {
-    if values.is_empty() {
+    let valid_values: Vec<f64> = values.iter()
+        .copied()
+        .filter(|x| x.is_finite())
+        .collect();
+    
+    if valid_values.is_empty() {
         return None;
     }
     
-    let mean = calculate_average(values);
-    let variance = values.iter()
+    let mean = calculate_average(&valid_values);
+    let variance = valid_values.iter()
         .map(|x| (x - mean).powi(2))
-        .sum::<f64>() / values.len() as f64;
+        .sum::<f64>() / valid_values.len() as f64;
     
     Some(variance)
 }
@@ -78,6 +88,11 @@ mod tests {
     fn test_calculate_average() {
         assert_eq!(calculate_average(&[1.0, 2.0, 3.0]), 2.0);
         assert_eq!(calculate_average(&[]), 0.0);
+        
+        // Test NaN handling
+        assert_eq!(calculate_average(&[1.0, 2.0, f64::NAN, 3.0]), 2.0);
+        assert_eq!(calculate_average(&[f64::NAN, f64::NAN]), 0.0);
+        assert_eq!(calculate_average(&[f64::INFINITY, 1.0, 2.0]), 1.5);
     }
 
     #[test]
@@ -110,6 +125,11 @@ mod tests {
         // Test with identical values
         let values = vec![3.0, 3.0, 3.0, 3.0];
         assert_eq!(calculate_variance(&values), Some(0.0));
+        
+        // Test NaN handling
+        let values = vec![2.0, 4.0, f64::NAN, 6.0];
+        let variance = calculate_variance(&values).unwrap();
+        assert!((variance - 2.67).abs() < 0.01); // Variance of [2,4,6]
     }
 
     #[test]

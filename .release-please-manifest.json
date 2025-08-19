@@ -1,0 +1,5 @@
+{
+  "crates/core": "0.1.0",
+  "crates/utils": "0.1.0",
+  "crates/cli": "0.1.0"
+}

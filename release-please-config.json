@@ -1,0 +1,33 @@
+{
+  "packages": {
+    "crates/core": {
+      "release-type": "rust",
+      "package-name": "release-test-core",
+      "component": "release-test-core"
+    },
+    "crates/utils": {
+      "release-type": "rust",
+      "package-name": "release-test-utils",
+      "component": "release-test-utils"
+    },
+    "crates/cli": {
+      "release-type": "rust",
+      "package-name": "release-test-cli",
+      "component": "release-test-cli"
+    }
+  },
+  "release-type": "rust",
+  "bump-minor-pre-major": true,
+  "bump-patch-for-minor-pre-major": false,
+  "draft": false,
+  "prerelease": false,
+  "include-component-in-tag": true,
+  "include-v-in-tag": true,
+  "changelog-sections": [
+    {"type": "feat", "section": "Features", "hidden": false},
+    {"type": "fix", "section": "Bug Fixes", "hidden": false},
+    {"type": "perf", "section": "Performance Improvements", "hidden": false},
+    {"type": "docs", "section": "Documentation", "hidden": false},
+    {"type": "chore", "section": "Miscellaneous", "hidden": false}
+  ]
+}

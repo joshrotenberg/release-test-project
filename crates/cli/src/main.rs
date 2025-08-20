@@ -5,7 +5,7 @@ use release_test_utils::{format_data, serialize_data};
 
 #[derive(Parser)]
 #[command(name = "release-test")]
-#[command(about = "A test CLI for release-plz", long_about = None)]
+#[command(about = "A demo CLI for automated release testing", long_about = None)]
 struct Cli {
     #[command(subcommand)]
     command: Commands,
@@ -21,7 +21,7 @@ enum Commands {
         #[arg(short, long)]
         value: f64,
     },
-    
+
     Format {
         #[arg(short, long)]
         json: bool,
@@ -33,6 +33,9 @@ fn main() -> Result<()> {
 
     match cli.command {
         Commands::Process { id, name, value } => {
+            if name.is_empty() {
+                anyhow::bail!("Name cannot be empty");
+            }
             let model = DataModel::new(id, name, value)?;
             println!("Original: {}", format_data(&model));
             println!("Processed value: {}", model.process());

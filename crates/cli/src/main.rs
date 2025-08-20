@@ -51,6 +51,7 @@ fn main() -> Result<()> {
             let model = DataModel::new(id, name, value)?;
             println!("Original: {}", format_data(&model));
             println!("Processed value: {}", model.process());
+            println!("Squared value: {}", model.squared());
             Ok(())
         }
         Commands::Format { json } => {

@@ -33,11 +33,11 @@ jobs:
         run: cargo build --release
         
       - name: Upload Release Artifacts
-        if: ${{ steps.release.outputs.releases_created }}
+        if: ${{ steps.release.outputs['release-test-cli--release_created'] }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Upload binary to the release
-          gh release upload ${{ steps.release.outputs.tag_name }} \
+          # Upload binary to the CLI release (only when CLI is released)
+          gh release upload ${{ steps.release.outputs['release-test-cli--tag_name'] }} \
             target/release/release-test \
             --clobber

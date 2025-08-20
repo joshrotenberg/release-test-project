@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.4.0](https://github.com/joshrotenberg/release-test-project/compare/release-test-cli-v0.3.5...release-test-cli-v0.4.0) (2025-08-20)
+
+
+### 🚀 Features
+
+* **cli:** add version subcommand ([22f7b10](https://github.com/joshrotenberg/release-test-project/commit/22f7b10cd6aec2de7fc3911a70c3e24139269adf))
+* **cli:** add version subcommand for displaying version info ([c1c7d0f](https://github.com/joshrotenberg/release-test-project/commit/c1c7d0fd0850f5723fb2b0a95e0b235c41a0903f))
+
+
+### 🐛 Bug Fixes
+
+* **ci:** debug and fix binary upload workflow ([68aad47](https://github.com/joshrotenberg/release-test-project/commit/68aad475ea407c7d364636d78d57dc66435b2194))
+* **ci:** debug and fix binary upload workflow ([973032e](https://github.com/joshrotenberg/release-test-project/commit/973032ea8ec6244c6770f16b289dfdbc8484819f))
+
 ## [0.3.5](https://github.com/joshrotenberg/release-test-project/compare/release-test-cli-v0.3.4...release-test-cli-v0.3.5) (2025-08-20)
 
 

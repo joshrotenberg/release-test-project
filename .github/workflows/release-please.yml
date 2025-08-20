@@ -20,5 +20,29 @@ jobs:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
           
-      # Note: Binary building and upload is handled by build-release-binaries.yml
-      # which is triggered automatically when a release is created
+      # Build and upload binaries if CLI was released
+      - uses: actions/checkout@v4
+        if: ${{ steps.release.outputs['release-test-cli--release_created'] }}
+        
+      - name: Setup Rust
+        if: ${{ steps.release.outputs['release-test-cli--release_created'] }}
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-unknown-linux-gnu
+        
+      - name: Build Linux binary
+        if: ${{ steps.release.outputs['release-test-cli--release_created'] }}
+        run: |
+          cargo build --release --target x86_64-unknown-linux-gnu --bin release-test
+          cd target/x86_64-unknown-linux-gnu/release
+          tar czf release-test-x86_64-unknown-linux-gnu.tar.gz release-test
+          mv release-test-x86_64-unknown-linux-gnu.tar.gz ../../../
+        
+      - name: Upload Linux binary
+        if: ${{ steps.release.outputs['release-test-cli--release_created'] }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload ${{ steps.release.outputs['release-test-cli--tag_name'] }} \
+            release-test-x86_64-unknown-linux-gnu.tar.gz \
+            --clobber

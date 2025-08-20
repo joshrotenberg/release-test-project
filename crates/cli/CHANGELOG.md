@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.4](https://github.com/joshrotenberg/release-test-project/compare/release-test-cli-v0.3.3...release-test-cli-v0.3.4) (2025-08-20)
+
+
+### 🐛 Bug Fixes
+
+* **cli:** add proper exit code handling for errors ([8c3273c](https://github.com/joshrotenberg/release-test-project/commit/8c3273c0a17d3e56f9f292e3f09fdabf8b33c276))
+* **cli:** add proper exit code handling for errors ([797604a](https://github.com/joshrotenberg/release-test-project/commit/797604adbfce981fec704b6d149aa091961691eb))
+
 ## [0.3.3](https://github.com/joshrotenberg/release-test-project/compare/release-test-cli-v0.3.2...release-test-cli-v0.3.3) (2025-08-20)
 
 

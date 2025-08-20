@@ -18,15 +18,19 @@ pub fn calculate_average(values: &[f64]) -> f64 {
 }
 
 pub fn calculate_median(values: &mut [f64]) -> Option<f64> {
-    if values.is_empty() {
+    // Filter out NaN and infinite values for consistency with other statistics functions
+    let mut valid_values: Vec<f64> = values.iter().copied().filter(|x| x.is_finite()).collect();
+
+    if valid_values.is_empty() {
         return None;
     }
-    values.sort_by(|a, b| a.partial_cmp(b).unwrap());
-    let mid = values.len() / 2;
-    let median = if values.len() % 2 == 0 {
-        (values[mid - 1] + values[mid]) / 2.0
+
+    valid_values.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
+    let mid = valid_values.len() / 2;
+    let median = if valid_values.len() % 2 == 0 {
+        (valid_values[mid - 1] + valid_values[mid]) / 2.0
     } else {
-        values[mid]
+        valid_values[mid]
     };
     Some(median)
 }
@@ -104,6 +108,18 @@ mod tests {
 
         let mut empty: Vec<f64> = vec![];
         assert_eq!(calculate_median(&mut empty), None);
+
+        // Test NaN handling
+        let mut values = vec![1.0, 2.0, f64::NAN, 3.0, 4.0];
+        assert_eq!(calculate_median(&mut values), Some(2.5));
+
+        // Test with all NaN values
+        let mut values = vec![f64::NAN, f64::NAN];
+        assert_eq!(calculate_median(&mut values), None);
+
+        // Test with infinity
+        let mut values = vec![1.0, 2.0, f64::INFINITY, 3.0];
+        assert_eq!(calculate_median(&mut values), Some(2.0));
     }
 
     #[test]

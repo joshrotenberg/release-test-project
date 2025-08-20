@@ -6,14 +6,19 @@ Copy this entire prompt and paste it into Claude when you want to set up release
 
 ## The Prompt
 
-I need help setting up release-please for automated releases in my Rust multi-workspace project. This replaces any existing release-plz setup which doesn't work with unpublished packages.
+I need help setting up release-please for automated releases in my Rust multi-workspace project. I'm starting with a fresh git history (removing .git and recreating the GitHub repo) to ensure all commits follow conventional commit format from the beginning.
+
+**Important Context:**
+- I'm starting fresh - will delete `.git` directory and recreate the GitHub repository
+- All commits from the very first one MUST follow conventional commit format
+- This replaces any existing release-plz setup which doesn't work with unpublished packages
 
 Please help me:
 1. Analyze my current workspace structure
 2. Create the necessary release-please configuration files
 3. Set up the GitHub Actions workflow
-4. Ensure proper dependency cascading between workspace members
-5. Fix any common issues
+4. Guide me through the initial git setup with proper commit messages
+5. Ensure proper dependency cascading between workspace members
 
 Here's what I need you to do:
 
@@ -21,8 +26,48 @@ Here's what I need you to do:
 
 First, examine my workspace structure by checking:
 - `Cargo.toml` in the root (to identify workspace members)
+- Workspace structure (typically `crates/` directory with subdirectories for each crate)
 - Each crate's `Cargo.toml` to understand dependencies
 - Current versions of each crate
+
+Expected structure:
+```
+.
+├── Cargo.toml              # Workspace root
+├── crates/
+│   ├── core/              # Example: core functionality
+│   │   ├── Cargo.toml
+│   │   └── src/
+│   ├── utils/             # Example: utility functions
+│   │   ├── Cargo.toml
+│   │   └── src/
+│   └── cli/               # Example: CLI application
+│       ├── Cargo.toml
+│       └── src/
+```
+
+Root `Cargo.toml` should have:
+```toml
+[workspace]
+resolver = "2"
+members = [
+    "crates/core",
+    "crates/utils",
+    "crates/cli",
+]
+
+[workspace.package]
+edition = "2024"  # or your edition
+authors = ["Your Name <you@example.com>"]
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/yourusername/yourrepo"
+
+[workspace.dependencies]
+# Shared dependencies across workspace
+anyhow = "1.0"
+thiserror = "2.0"
+# ... other shared deps
+```
 
 ### Step 2: Create release-please Configuration
 
@@ -124,14 +169,52 @@ jobs:
 
 ### Step 5: Check Workspace Dependencies
 
-Ensure internal dependencies in each crate's `Cargo.toml` use BOTH path and version:
-```toml
-# CORRECT - uses both path and version
-my-core = { path = "../core", version = "0.1.0" }
+Each crate's `Cargo.toml` needs proper configuration:
 
-# WRONG - only path
-my-core = { path = "../core" }
+#### Individual Crate Cargo.toml Structure:
+```toml
+[package]
+name = "your-package-name"  # Must match what's in release-please-config.json
+version = "0.1.0"           # Must match .release-please-manifest.json
+edition.workspace = true    # Inherit from workspace
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Description of this crate"
+
+# For CLI crates with binaries:
+[[bin]]
+name = "your-binary-name"
+path = "src/main.rs"
+
+[dependencies]
+# External deps can use workspace
+anyhow.workspace = true
+
+# CRITICAL: Internal deps MUST use both path AND version
+your-core = { path = "../core", version = "0.1.0" }
+your-utils = { path = "../utils", version = "0.1.0" }
 ```
+
+**WRONG Internal Dependencies (will break releases):**
+```toml
+# Missing version - DON'T DO THIS
+my-core = { path = "../core" }
+
+# Missing path - DON'T DO THIS  
+my-core = { version = "0.1.0" }
+
+# Using * version - DON'T DO THIS
+my-core = { path = "../core", version = "*" }
+```
+
+**CORRECT Internal Dependencies:**
+```toml
+# Always include both path and explicit version
+my-core = { path = "../core", version = "0.1.0" }
+```
+
+The version should match the current version in that crate's Cargo.toml. release-please will automatically update these versions when creating releases.
 
 ### Step 6: Enable GitHub Permissions
 
@@ -139,34 +222,110 @@ my-core = { path = "../core" }
 1. Under "Workflow permissions" select "Read and write permissions"
 2. ✅ Check "Allow GitHub Actions to create and approve pull requests"
 
-### Step 7: Test the Setup
+### Step 7: Initialize Git with Proper Commits
 
-After setting up:
+Since we're starting fresh, let's set up git correctly from the beginning:
+
+```bash
+# Remove old git history (if exists)
+rm -rf .git
+
+# Initialize new repository
+git init
+git branch -M main
+
+# Add release-please files first
+git add release-please-config.json .release-please-manifest.json
+git add .github/workflows/release-please.yml
+git commit -m "build: add release-please configuration for automated releases"
+
+# Add your existing code
+git add .
+git commit -m "feat: initial implementation of multi-workspace project"
+
+# Create new GitHub repository (using gh CLI)
+gh repo create [your-repo-name] --private --source=. --remote=origin --push
+```
+
+**CRITICAL**: Every commit from now on MUST use conventional format:
+- Start with a type: `feat:`, `fix:`, `docs:`, `style:`, `refactor:`, `test:`, `chore:`, `build:`, `ci:`
+- After the colon, add a space and then your description
+- Use present tense ("add feature" not "added feature")
+
+### Step 8: Test the Setup
+
+After pushing to GitHub:
 1. Create a test branch with a conventional commit (e.g., `fix: test release-please setup`)
-2. Merge it to main
-3. Wait for release-please to create a PR
+2. Create and merge a PR to main
+3. Wait ~30 seconds for release-please to create its PR
 4. Check the PR has correct version bumps and changelog entries
 
 ### Important Notes
 
-1. **Conventional Commits**: From now on, ALL commits must use conventional format:
+1. **Why Fresh Start Matters**: Non-conventional commits in history can cause release-please to:
+   - Skip creating release PRs
+   - Incorrectly calculate version bumps
+   - Miss changes in the changelog
+   - Get confused about what's been released
+   Starting fresh ensures every commit is parseable by release-please
+
+2. **Conventional Commits**: From now on, ALL commits must use conventional format:
    - `fix:` for patch bumps (0.1.0 → 0.1.1)
    - `feat:` for minor bumps (0.1.0 → 0.2.0)
    - `feat!:` or with `BREAKING CHANGE:` for major bumps (0.1.0 → 1.0.0)
+   - Other types (`docs:`, `style:`, `refactor:`, `test:`, `chore:`) don't trigger releases but are included in changelogs
 
-2. **Dependency Cascading**: When a lower-level crate changes, dependent crates will also bump versions automatically
+3. **Dependency Cascading**: When a lower-level crate changes, dependent crates will also bump versions automatically
 
-3. **Multi-Package Releases**: Multiple packages can release together, each with its own tag
+4. **Multi-Package Releases**: Multiple packages can release together, each with its own tag
 
-4. **No crates.io Required**: Unlike release-plz, this works perfectly with unpublished packages
+5. **No crates.io Required**: Unlike release-plz, this works perfectly with unpublished packages
+
+### Common Commit Message Examples
+
+Good commit messages that will work with release-please:
+```bash
+# Features (minor version bump)
+git commit -m "feat: add new authentication system"
+git commit -m "feat(auth): implement JWT token validation"
+
+# Bug fixes (patch version bump)
+git commit -m "fix: resolve memory leak in data processor"
+git commit -m "fix(cli): correct argument parsing for --verbose flag"
+
+# Breaking changes (major version bump)
+git commit -m "feat!: redesign API to use async/await"
+git commit -m "fix!: change config file format from TOML to JSON"
+
+# Non-releasing but included in changelog
+git commit -m "docs: update README with usage examples"
+git commit -m "test: add integration tests for auth module"
+git commit -m "refactor: simplify error handling logic"
+git commit -m "style: apply rustfmt to all modules"
+git commit -m "chore: update dependencies"
+git commit -m "ci: add Windows to test matrix"
+git commit -m "build: optimize release binary size"
+```
+
+BAD commit messages that will cause problems:
+```bash
+# These won't be recognized by release-please:
+git commit -m "Updated README"  # No type prefix
+git commit -m "Fix bug"         # No colon after type
+git commit -m "FEAT: add feature"  # Uppercase type (should be lowercase)
+git commit -m "feat add feature"   # Missing colon
+git commit -m "wip: add feature"   # Invalid type
+```
 
 ### Troubleshooting
 
 If release PR is not created:
+- Check ALL commits since last release follow conventional format
 - Check GitHub Actions permissions are enabled
-- Verify conventional commit format
+- Verify conventional commit format with: `git log --oneline`
 - Check workflow runs: `gh run list --workflow=release-please.yml`
 - Check for errors: `gh run view [run-id] --log-failed`
+- If you have non-conventional commits, you may need to start fresh
 
 ### Example Working Repository
 

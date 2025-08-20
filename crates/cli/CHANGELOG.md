@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.5](https://github.com/joshrotenberg/release-test-project/compare/release-test-cli-v0.3.4...release-test-cli-v0.3.5) (2025-08-20)
+
+
+### 🐛 Bug Fixes
+
+* **cli:** add input validation for better error handling ([ed9f695](https://github.com/joshrotenberg/release-test-project/commit/ed9f695212b2fd69d72b1d4818ab9e1f3f902dc1))
+* **cli:** add input validation for better error handling ([691d888](https://github.com/joshrotenberg/release-test-project/commit/691d888cfcb994a780144d9d1fedede74d524e10))
+
 ## [0.3.4](https://github.com/joshrotenberg/release-test-project/compare/release-test-cli-v0.3.3...release-test-cli-v0.3.4) (2025-08-20)
 
 

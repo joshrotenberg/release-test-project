@@ -32,6 +32,9 @@ enum Commands {
         #[arg(short, long)]
         json: bool,
     },
+
+    /// Display version information
+    Version,
 }
 
 fn main() -> Result<()> {
@@ -61,6 +64,11 @@ fn main() -> Result<()> {
             } else {
                 println!("{}", format_data(&model));
             }
+            Ok(())
+        }
+        Commands::Version => {
+            println!("release-test v{}", env!("CARGO_PKG_VERSION"));
+            println!("A demo CLI for automated release testing");
             Ok(())
         }
     };

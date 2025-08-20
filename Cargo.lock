@@ -154,7 +154,7 @@ dependencies = [
 
 [[package]]
 name = "release-test-cli"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
  "anyhow",
  "clap",
@@ -173,7 +173,7 @@ dependencies = [
 
 [[package]]
 name = "release-test-utils"
-version = "0.4.0"
+version = "0.4.1"
 dependencies = [
  "release-test-core",
  "serde_json",

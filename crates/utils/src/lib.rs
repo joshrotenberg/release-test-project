@@ -9,11 +9,8 @@ pub fn serialize_data(model: &DataModel) -> Result<String, serde_json::Error> {
 }
 
 pub fn calculate_average(values: &[f64]) -> f64 {
-    let valid_values: Vec<f64> = values.iter()
-        .copied()
-        .filter(|x| x.is_finite())
-        .collect();
-    
+    let valid_values: Vec<f64> = values.iter().copied().filter(|x| x.is_finite()).collect();
+
     if valid_values.is_empty() {
         return 0.0;
     }
@@ -35,20 +32,16 @@ pub fn calculate_median(values: &mut [f64]) -> Option<f64> {
 }
 
 pub fn calculate_variance(values: &[f64]) -> Option<f64> {
-    let valid_values: Vec<f64> = values.iter()
-        .copied()
-        .filter(|x| x.is_finite())
-        .collect();
-    
+    let valid_values: Vec<f64> = values.iter().copied().filter(|x| x.is_finite()).collect();
+
     if valid_values.is_empty() {
         return None;
     }
-    
+
     let mean = calculate_average(&valid_values);
-    let variance = valid_values.iter()
-        .map(|x| (x - mean).powi(2))
-        .sum::<f64>() / valid_values.len() as f64;
-    
+    let variance =
+        valid_values.iter().map(|x| (x - mean).powi(2)).sum::<f64>() / valid_values.len() as f64;
+
     Some(variance)
 }
 
@@ -57,11 +50,17 @@ pub fn calculate_std_deviation(values: &[f64]) -> Option<f64> {
 }
 
 pub fn find_min(values: &[f64]) -> Option<f64> {
-    values.iter().copied().min_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal))
+    values
+        .iter()
+        .copied()
+        .min_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal))
 }
 
 pub fn find_max(values: &[f64]) -> Option<f64> {
-    values.iter().copied().max_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal))
+    values
+        .iter()
+        .copied()
+        .max_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal))
 }
 
 #[cfg(test)]
@@ -88,7 +87,7 @@ mod tests {
     fn test_calculate_average() {
         assert_eq!(calculate_average(&[1.0, 2.0, 3.0]), 2.0);
         assert_eq!(calculate_average(&[]), 0.0);
-        
+
         // Test NaN handling
         assert_eq!(calculate_average(&[1.0, 2.0, f64::NAN, 3.0]), 2.0);
         assert_eq!(calculate_average(&[f64::NAN, f64::NAN]), 0.0);
@@ -99,10 +98,10 @@ mod tests {
     fn test_calculate_median() {
         let mut values = vec![1.0, 2.0, 3.0];
         assert_eq!(calculate_median(&mut values), Some(2.0));
-        
+
         let mut values = vec![1.0, 2.0, 3.0, 4.0];
         assert_eq!(calculate_median(&mut values), Some(2.5));
-        
+
         let mut empty: Vec<f64> = vec![];
         assert_eq!(calculate_median(&mut empty), None);
     }
@@ -113,19 +112,19 @@ mod tests {
         let values = vec![2.0, 4.0, 4.0, 4.0, 5.0, 5.0, 7.0, 9.0];
         let variance = calculate_variance(&values).unwrap();
         assert!((variance - 4.0).abs() < 0.01);
-        
+
         // Test with single value
         let values = vec![5.0];
         assert_eq!(calculate_variance(&values), Some(0.0));
-        
+
         // Test with empty array
         let empty: Vec<f64> = vec![];
         assert_eq!(calculate_variance(&empty), None);
-        
+
         // Test with identical values
         let values = vec![3.0, 3.0, 3.0, 3.0];
         assert_eq!(calculate_variance(&values), Some(0.0));
-        
+
         // Test NaN handling
         let values = vec![2.0, 4.0, f64::NAN, 6.0];
         let variance = calculate_variance(&values).unwrap();
@@ -138,15 +137,15 @@ mod tests {
         let values = vec![2.0, 4.0, 4.0, 4.0, 5.0, 5.0, 7.0, 9.0];
         let std_dev = calculate_std_deviation(&values).unwrap();
         assert!((std_dev - 2.0).abs() < 0.01);
-        
+
         // Test with single value
         let values = vec![5.0];
         assert_eq!(calculate_std_deviation(&values), Some(0.0));
-        
+
         // Test with empty array
         let empty: Vec<f64> = vec![];
         assert_eq!(calculate_std_deviation(&empty), None);
-        
+
         // Test with identical values
         let values = vec![3.0, 3.0, 3.0, 3.0];
         assert_eq!(calculate_std_deviation(&values), Some(0.0));

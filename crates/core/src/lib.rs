@@ -5,7 +5,7 @@ use thiserror::Error;
 pub enum CoreError {
     #[error("processing error: {0}")]
     ProcessingError(String),
-    
+
     #[error("validation error: {0}")]
     ValidationError(String),
 }
@@ -20,19 +20,21 @@ pub struct DataModel {
 impl DataModel {
     pub fn new(id: u64, name: String, value: f64) -> Result<Self, CoreError> {
         if name.is_empty() {
-            return Err(CoreError::ValidationError("Name cannot be empty".to_string()));
+            return Err(CoreError::ValidationError(
+                "Name cannot be empty".to_string(),
+            ));
         }
         Ok(Self { id, name, value })
     }
-    
+
     pub fn process(&self) -> f64 {
         self.value * 2.0
     }
-    
+
     pub fn squared(&self) -> f64 {
         self.value * self.value
     }
-    
+
     pub fn to_json(&self) -> Result<String, serde_json::Error> {
         serde_json::to_string(self)
     }

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Multi-workspace Rust project demonstrating release-plz configuration for automated releases.
+Multi-workspace Rust project demonstrating automated releases using **release-please** (working solution). Previously attempted release-plz but it requires crates.io publication for unpublished packages.
 
 ## Development Commands
 
@@ -25,6 +25,7 @@ cargo run --release --bin release-test
 cargo test --lib --all-features
 cargo test --test '*' --all-features
 cargo test  # Run all tests
+cargo test test_name  # Run single test
 ```
 
 ### Code Quality
@@ -34,80 +35,49 @@ cargo fmt --all -- --check
 cargo clippy --all-targets --all-features -- -D warnings
 ```
 
-### Single Test Execution
-```bash
-cargo test test_name
-cargo test --test integration_test_name
-```
+## Release Management with release-please
 
-## Release Management with release-plz
-
-### Local Testing Commands
-```bash
-# Check what would be released
-release-plz update
-
-# Update versions and changelogs locally
-release-plz update --update-deps
-
-# Generate changelog only
-release-plz changelog
-```
+This project uses **release-please** for automated releases. The system automatically creates release PRs when conventional commits are pushed to main.
 
 ### Configuration Files
 
-1. **release-plz.toml**: Main configuration for release-plz
-2. **cliff.toml**: Git-cliff configuration for changelog generation
-3. **.github/workflows/release-plz.yml**: Automated PR creation for releases
-4. **.github/workflows/release.yml**: Automated binary releases on tags
+1. **release-please-config.json**: Multi-package configuration
+2. **.release-please-manifest.json**: Version tracking (currently core: 0.2.0, utils: 0.4.1, cli: 0.3.1)
+3. **.github/workflows/release-please.yml**: GitHub Action for automated releases
+4. **cliff.toml**: Enhanced changelog formatting with emojis (optional)
+
+### Release Workflow
+
+1. Make changes in feature branch with conventional commits:
+   - `feat:` → Minor version bump (0.1.0 → 0.2.0)
+   - `fix:` → Patch version bump (0.1.0 → 0.1.1) 
+   - `feat!:` or `BREAKING CHANGE:` → Major version bump (0.1.0 → 1.0.0)
+2. Merge to main → release-please creates PR automatically
+3. Merge release PR → Creates GitHub releases and tags
+
+### Verifying Release Status
+```bash
+gh run list --workflow=release-please.yml  # Check workflow runs
+gh pr list  # Check for release PRs
+gh release list  # View created releases
+```
 
 ## Code Architecture
 
-Multi-workspace structure with three crates:
-- `crates/core/`: Core library with data models and business logic
-- `crates/utils/`: Utility functions that depend on core
-- `crates/cli/`: CLI application that uses both core and utils
+Multi-workspace structure (Rust 2024 edition):
+- **crates/core/** (v0.2.0): Core library with `DataModel` and business logic
+- **crates/utils/** (v0.4.1): Utility functions (`format_data`, `serialize_data`, statistics functions) - depends on core
+- **crates/cli/** (v0.3.1): CLI application with `process` and `format` commands - depends on both core and utils
 
 ### Workspace Dependencies
-- Shared dependencies defined in root `Cargo.toml` under `[workspace.dependencies]`
-- Internal crate dependencies use path and version: `{ path = "../core", version = "0.1.0" }`
-
-## Release-plz Setup for Multi-Workspace Projects
-
-### Key Configuration Points
-
-1. **Workspace-level settings** in release-plz.toml:
-   - `changelog_update = true` for all packages
-   - `dependencies_update = true` to update internal dependencies
-   - `git_tag_name` format for consistent tagging
-
-2. **Package-specific settings**:
-   - Individual `changelog_path` for each crate
-   - Optional `semver_check` for stricter versioning
-
-3. **GitHub Actions Integration**:
-   - Automatic PR creation on push to main
-   - Release workflow triggered by version tags
-
-### Common Issues and Solutions
-
-1. **"Package not found in registry" error**: 
-   - This happens with unpublished packages
-   - Solution: Use `--allow-dirty` flag for local testing
-   - For CI: Ensure CARGO_REGISTRY_TOKEN is set if publishing
-
-2. **Version not bumping**:
-   - Ensure commits follow conventional format (feat:, fix:, etc.)
-   - Check that there are actual changes since last tag
-   - Use `release-plz update --verbose` for debugging
-
-3. **Multi-workspace dependencies**:
-   - Internal dependencies must specify both path and version
-   - Version updates cascade through dependent packages
+- Shared dependencies in root `Cargo.toml` under `[workspace.dependencies]`:
+  - anyhow 1.0, thiserror 2.0, serde 1.0, clap 4.5
+- Internal dependencies use both path and version: `{ path = "../core", version = "0.2.0" }`
+- Version updates cascade through dependent packages automatically
 
 ## Important Notes
 
-- Always run `cargo test` and `cargo clippy` after making changes
+- GitHub Actions must have permission to create PRs (Settings → Actions → General → "Allow GitHub Actions to create and approve pull requests")
 - Follow conventional commits for automatic version bumping
-- Use Rust 2024 edition idioms
-- Internal packages depend on each other; changes cascade
+- Tests exist in core and utils modules (use `#[cfg(test)]` mod tests pattern)
+- Binary name is `release-test` from the CLI crate

@@ -5,7 +5,7 @@ use release_test_utils::{format_data, serialize_data};
 
 #[derive(Parser)]
 #[command(name = "release-test")]
-#[command(about = "A demo CLI for automated release testing", long_about = None)]
+#[command(version, about = "A demo CLI for automated release testing", long_about = None)]
 struct Cli {
     #[command(subcommand)]
     command: Commands,
@@ -13,16 +13,22 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
+    /// Process data with the given parameters
     Process {
+        /// Unique identifier for the data
         #[arg(short, long)]
         id: u64,
+        /// Name or label for the data
         #[arg(short, long)]
         name: String,
+        /// Numeric value to process
         #[arg(short, long)]
         value: f64,
     },
 
+    /// Format and display sample data
     Format {
+        /// Output in JSON format instead of plain text
         #[arg(short, long)]
         json: bool,
     },

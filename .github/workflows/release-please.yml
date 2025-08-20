@@ -20,18 +20,31 @@ jobs:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
           
-      # Build and upload binaries if CLI was released
+      # Debug outputs
+      - name: Debug release outputs
+        if: always()
+        run: |
+          echo "releases_created: ${{ steps.release.outputs.releases_created }}"
+          echo "release_created: ${{ steps.release.outputs.release_created }}"
+          echo "tag_name: ${{ steps.release.outputs.tag_name }}"
+          echo "cli specific:"
+          echo "  crates/cli--release_created: ${{ steps.release.outputs['crates/cli--release_created'] }}"
+          echo "  release-test-cli--release_created: ${{ steps.release.outputs['release-test-cli--release_created'] }}"
+          echo "All outputs:"
+          echo '${{ toJSON(steps.release.outputs) }}'
+      
+      # Build and upload binaries if any release was created
       - uses: actions/checkout@v4
-        if: ${{ steps.release.outputs['release-test-cli--release_created'] }}
+        if: ${{ steps.release.outputs.releases_created }}
         
       - name: Setup Rust
-        if: ${{ steps.release.outputs['release-test-cli--release_created'] }}
+        if: ${{ steps.release.outputs.releases_created }}
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: x86_64-unknown-linux-gnu
         
       - name: Build Linux binary
-        if: ${{ steps.release.outputs['release-test-cli--release_created'] }}
+        if: ${{ steps.release.outputs.releases_created }}
         run: |
           cargo build --release --target x86_64-unknown-linux-gnu --bin release-test
           cd target/x86_64-unknown-linux-gnu/release
@@ -39,10 +52,13 @@ jobs:
           mv release-test-x86_64-unknown-linux-gnu.tar.gz ../../../
         
       - name: Upload Linux binary
-        if: ${{ steps.release.outputs['release-test-cli--release_created'] }}
+        if: ${{ steps.release.outputs.releases_created }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release upload ${{ steps.release.outputs['release-test-cli--tag_name'] }} \
+          # Get the latest release tag
+          LATEST_TAG=$(gh release list --limit 1 --json tagName -q '.[0].tagName')
+          echo "Uploading to release: $LATEST_TAG"
+          gh release upload "$LATEST_TAG" \
             release-test-x86_64-unknown-linux-gnu.tar.gz \
             --clobber

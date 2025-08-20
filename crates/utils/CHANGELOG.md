@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.4.2](https://github.com/joshrotenberg/release-test-project/compare/release-test-utils-v0.4.1...release-test-utils-v0.4.2) (2025-08-20)
+
+
+### 🐛 Bug Fixes
+
+* **cli:** correct CLI description and add empty name validation ([056a4df](https://github.com/joshrotenberg/release-test-project/commit/056a4df4cbc3f5da1ddeebbcbb64006aa371aab7))
+* **cli:** correct CLI description and add empty name validation ([aab105d](https://github.com/joshrotenberg/release-test-project/commit/aab105d84fa5dd8b3fa8ed128a22617d9fb71e0a))
+
 ## [0.4.1](https://github.com/joshrotenberg/release-test-project/compare/release-test-utils-v0.4.0...release-test-utils-v0.4.1) (2025-08-19)
 
 

@@ -173,7 +173,7 @@ dependencies = [
 
 [[package]]
 name = "release-test-utils"
-version = "0.4.2"
+version = "0.4.3"
 dependencies = [
  "release-test-core",
  "serde_json",

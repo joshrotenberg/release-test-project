@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.3](https://github.com/joshrotenberg/release-test-project/compare/release-test-cli-v0.3.2...release-test-cli-v0.3.3) (2025-08-20)
+
+
+### 🐛 Bug Fixes
+
+* **cli:** improve help text and add version flag ([28918c3](https://github.com/joshrotenberg/release-test-project/commit/28918c3592d284bbb1fb4ea45f6811f0d25f0edb))
+* **cli:** improve help text and add version flag ([b6c21d9](https://github.com/joshrotenberg/release-test-project/commit/b6c21d95cdd84ddb9f8bad48fa14dcb7b085a3d2))
+
 ## [0.3.2](https://github.com/joshrotenberg/release-test-project/compare/release-test-cli-v0.3.1...release-test-cli-v0.3.2) (2025-08-20)
 
 

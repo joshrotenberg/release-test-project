@@ -1,5 +1,5 @@
 {
   "crates/core": "0.2.1",
   "crates/utils": "0.4.3",
-  "crates/cli": "0.3.4"
+  "crates/cli": "0.3.5"
 }

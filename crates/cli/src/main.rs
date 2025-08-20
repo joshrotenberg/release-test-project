@@ -42,6 +42,12 @@ fn main() -> Result<()> {
             if name.is_empty() {
                 anyhow::bail!("Name cannot be empty");
             }
+            if name.len() > 100 {
+                anyhow::bail!("Name too long (maximum 100 characters)");
+            }
+            if !value.is_finite() {
+                anyhow::bail!("Value must be a finite number (not NaN or infinity)");
+            }
             let model = DataModel::new(id, name, value)?;
             println!("Original: {}", format_data(&model));
             println!("Processed value: {}", model.process());

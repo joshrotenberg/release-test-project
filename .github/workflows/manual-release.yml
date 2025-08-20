@@ -1,0 +1,57 @@
+name: Manual Release Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to build binaries for'
+        required: true
+        type: string
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build-binaries:
+    name: Build ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Linux
+          - target: x86_64-unknown-linux-gnu
+            os: ubuntu-latest
+            binary: release-test
+          
+          # macOS
+          - target: x86_64-apple-darwin
+            os: macos-latest
+            binary: release-test
+          - target: aarch64-apple-darwin
+            os: macos-latest
+            binary: release-test
+          
+          # Windows
+          - target: x86_64-pc-windows-msvc
+            os: windows-latest
+            binary: release-test.exe
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Build binary
+        run: cargo build --release --target ${{ matrix.target }} --bin release-test
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-test-${{ matrix.target }}
+          path: target/${{ matrix.target }}/release/${{ matrix.binary }}

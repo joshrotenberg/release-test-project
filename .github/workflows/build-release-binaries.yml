@@ -1,0 +1,155 @@
+name: Build Release Binaries
+
+on:
+  release:
+    types: [created]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build-binaries:
+    name: Build ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Linux
+          - target: x86_64-unknown-linux-gnu
+            os: ubuntu-latest
+            binary: release-test
+            archive: tar.gz
+          - target: aarch64-unknown-linux-gnu
+            os: ubuntu-latest
+            binary: release-test
+            archive: tar.gz
+            cross: true
+          
+          # macOS
+          - target: x86_64-apple-darwin
+            os: macos-latest
+            binary: release-test
+            archive: tar.gz
+          - target: aarch64-apple-darwin
+            os: macos-latest
+            binary: release-test
+            archive: tar.gz
+          
+          # Windows
+          - target: x86_64-pc-windows-msvc
+            os: windows-latest
+            binary: release-test.exe
+            archive: zip
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Install cross
+        if: matrix.cross
+        run: cargo install cross --git https://github.com/cross-rs/cross
+
+      - name: Build binary
+        run: |
+          if [ "${{ matrix.cross }}" = "true" ]; then
+            cross build --release --target ${{ matrix.target }} --bin release-test
+          else
+            cargo build --release --target ${{ matrix.target }} --bin release-test
+          fi
+        shell: bash
+
+      - name: Package binary (Unix)
+        if: matrix.os != 'windows-latest'
+        run: |
+          cd target/${{ matrix.target }}/release
+          tar czf release-test-${{ matrix.target }}.tar.gz ${{ matrix.binary }}
+          mv release-test-${{ matrix.target }}.tar.gz ../../../
+        shell: bash
+
+      - name: Package binary (Windows)
+        if: matrix.os == 'windows-latest'
+        run: |
+          cd target/${{ matrix.target }}/release
+          7z a -tzip release-test-${{ matrix.target }}.zip ${{ matrix.binary }}
+          mv release-test-${{ matrix.target }}.zip ../../../
+        shell: bash
+
+      - name: Upload to Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ "${{ matrix.os }}" = "windows-latest" ]; then
+            gh release upload ${{ github.event.release.tag_name }} \
+              release-test-${{ matrix.target }}.zip \
+              --clobber
+          else
+            gh release upload ${{ github.event.release.tag_name }} \
+              release-test-${{ matrix.target }}.tar.gz \
+              --clobber
+          fi
+        shell: bash
+
+  build-universal-macos:
+    name: Build Universal macOS Binary
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-apple-darwin,aarch64-apple-darwin
+
+      - name: Build both architectures
+        run: |
+          cargo build --release --target x86_64-apple-darwin --bin release-test
+          cargo build --release --target aarch64-apple-darwin --bin release-test
+
+      - name: Create universal binary
+        run: |
+          lipo -create \
+            target/x86_64-apple-darwin/release/release-test \
+            target/aarch64-apple-darwin/release/release-test \
+            -output release-test-universal
+          chmod +x release-test-universal
+          tar czf release-test-universal-apple-darwin.tar.gz release-test-universal
+
+      - name: Upload to Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload ${{ github.event.release.tag_name }} \
+            release-test-universal-apple-darwin.tar.gz \
+            --clobber
+
+  generate-checksums:
+    name: Generate checksums
+    needs: [build-binaries, build-universal-macos]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Download all release assets
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release download ${{ github.event.release.tag_name }} --dir ./artifacts
+
+      - name: Generate checksums
+        run: |
+          cd artifacts
+          sha256sum * > checksums.txt
+          cat checksums.txt
+
+      - name: Upload checksums
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload ${{ github.event.release.tag_name }} \
+            artifacts/checksums.txt \
+            --clobber

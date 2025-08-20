@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.4.3](https://github.com/joshrotenberg/release-test-project/compare/release-test-utils-v0.4.2...release-test-utils-v0.4.3) (2025-08-20)
+
+
+### 🐛 Bug Fixes
+
+* **utils:** add NaN and infinity handling to calculate_median ([94043ba](https://github.com/joshrotenberg/release-test-project/commit/94043bab9f0838d4d86732458811d8d08f1063f8))
+* **utils:** add NaN and infinity handling to calculate_median ([fd1c326](https://github.com/joshrotenberg/release-test-project/commit/fd1c326078a4bcb63126947d02a83a8f42b3d882))
+
 ## [0.4.2](https://github.com/joshrotenberg/release-test-project/compare/release-test-utils-v0.4.1...release-test-utils-v0.4.2) (2025-08-20)
 
 

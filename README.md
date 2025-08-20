@@ -2,6 +2,28 @@
 
 A complete working example of automated releases for Rust multi-workspace projects using release-please.
 
+## Installation
+
+### Quick Install (Unix/macOS/WSL)
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/joshrotenberg/release-test-project/main/install.sh | bash
+```
+
+Or with wget:
+```bash
+wget -qO- https://raw.githubusercontent.com/joshrotenberg/release-test-project/main/install.sh | bash
+```
+
+### Download Binaries
+
+Pre-built binaries are available for:
+- Linux (x86_64, aarch64)
+- macOS (x86_64, aarch64, universal)
+- Windows (x86_64)
+
+Download from the [releases page](https://github.com/joshrotenberg/release-test-project/releases).
+
 > **✅ Working Solution**: `release-please` works perfectly with unpublished packages  
 > **❌ Failed Attempt**: `release-plz` requires crates.io publication  
 > **📖 Complete Guide**: [RELEASE_PLEASE_SETUP.md](RELEASE_PLEASE_SETUP.md) has step-by-step instructions

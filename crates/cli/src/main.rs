@@ -37,7 +37,7 @@ enum Commands {
 fn main() -> Result<()> {
     let cli = Cli::parse();
 
-    match cli.command {
+    let result = match cli.command {
         Commands::Process { id, name, value } => {
             if name.is_empty() {
                 anyhow::bail!("Name cannot be empty");
@@ -45,6 +45,7 @@ fn main() -> Result<()> {
             let model = DataModel::new(id, name, value)?;
             println!("Original: {}", format_data(&model));
             println!("Processed value: {}", model.process());
+            Ok(())
         }
         Commands::Format { json } => {
             let model = DataModel::new(1, "example".to_string(), 100.0)?;
@@ -53,8 +54,15 @@ fn main() -> Result<()> {
             } else {
                 println!("{}", format_data(&model));
             }
+            Ok(())
         }
+    };
+
+    // Ensure proper exit code on error
+    if let Err(e) = &result {
+        eprintln!("Error: {}", e);
+        std::process::exit(1);
     }
 
-    Ok(())
+    result
 }
